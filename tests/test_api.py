@@ -25,6 +25,7 @@ from articraft.settings import Settings, get_settings
         ("openai", "gpt-future-preview", "openai_model"),
         ("gemini", "gemini-future-preview", "gemini_model"),
         ("anthropic", "claude-future-preview", "anthropic_model"),
+        ("codex-cli", "gpt-future-preview", "codex_model"),
     ],
 )
 def test_resolved_settings_routes_model_to_selected_provider(
@@ -65,6 +66,7 @@ def test_missing_provider_settings_treats_whitespace_as_missing() -> None:
     assert api._missing_provider_settings(base.model_copy(update={"provider": "anthropic"})) == [
         "ANTHROPIC_API_KEY"
     ]
+    assert api._missing_provider_settings(base.model_copy(update={"provider": "codex-cli"})) == []
 
 
 def test_generate_rejects_empty_prompt() -> None:

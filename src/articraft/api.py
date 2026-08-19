@@ -24,7 +24,7 @@ from articraft.agent.provider.anthropic import anthropic_api_key_value
 from articraft.agent.workspace import LocalWorkspace
 from articraft.settings import Settings, get_settings
 
-Provider = Literal["openai", "gemini", "anthropic", "openrouter"]
+Provider = Literal["openai", "gemini", "anthropic", "openrouter", "codex-cli"]
 GenerationStatus = Literal["success", "error"]
 Event = events.Event
 EventHandler = Callable[[Event], None]
@@ -186,6 +186,7 @@ def _resolved_settings(
     if model is not None:
         model_key = {
             "anthropic": "anthropic_model",
+            "codex-cli": "codex_model",
             "gemini": "gemini_model",
             "openai": "openai_model",
             "openrouter": "openrouter_model",
@@ -198,6 +199,8 @@ def _resolved_settings(
 
 
 def _missing_provider_settings(settings: Settings) -> list[str]:
+    if settings.provider == "codex-cli":
+        return []
     if settings.provider == "openrouter":
         missing = []
         if not (settings.openrouter_api_key or "").strip():

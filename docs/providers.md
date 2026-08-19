@@ -1,6 +1,7 @@
 # Model providers
 
-Articraft supports OpenAI, Anthropic, Gemini, and OpenRouter. OpenAI is the default.
+Articraft supports OpenAI, Anthropic, Gemini, OpenRouter, and Codex CLI. OpenAI is the
+default.
 
 ## Configure a provider
 
@@ -12,6 +13,7 @@ Set the API key for the provider that you want to use:
 | Anthropic | `ANTHROPIC_API_KEY` | `claude-sonnet-5` | Yes |
 | Gemini | `GEMINI_API_KEY` | `gemini-3.6-flash` | Yes |
 | OpenRouter | `OPENROUTER_API_KEY` | `nvidia/nemotron-3-ultra-550b-a55b:free` | No |
+| Codex CLI | Codex login | Codex configured default | Yes |
 
 You can put the key in `.env` or set it for one command. Do not commit API keys.
 
@@ -60,3 +62,16 @@ result = articraft.generate(
 ```
 
 The function checks the required API key before it starts the run.
+
+## Use Codex CLI
+
+Install and log in to Codex CLI, then select its provider:
+
+```shell
+uv run articraft generate --provider codex-cli "a folding chair"
+```
+
+Articraft remains in control of the agent loop, tools, compile feedback, and run record.
+Codex CLI returns one structured assistant turn at a time and does not edit the workspace
+directly. Use `--model` to override the model configured by Codex. Total tokens are recorded
+when the CLI reports them; Codex CLI does not expose dollar cost accounting.

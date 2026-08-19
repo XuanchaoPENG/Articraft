@@ -360,6 +360,34 @@ def test_cli_selects_anthropic_provider(monkeypatch, tmp_path: Path) -> None:
     assert settings.selected_model == "claude-opus-5"
 
 
+def test_cli_selects_codex_cli_without_api_key(monkeypatch, tmp_path: Path) -> None:
+    reset_fakes()
+    monkeypatch.setattr(api, "create_model", FakeOpenAIModel)
+    monkeypatch.setattr(api, "LocalWorkspace", FakeEnvironment)
+    monkeypatch.setattr(api, "Agent", FakeAgent)
+    monkeypatch.setattr(app, "get_settings", lambda: Settings(max_turns=123))
+
+    result = CliRunner().invoke(
+        app.cli,
+        [
+            "generate",
+            "make a hinge",
+            "--provider",
+            "codex-cli",
+            "--model",
+            "gpt-test",
+            "--output-dir",
+            str(tmp_path / "runs"),
+        ],
+    )
+
+    assert result.exit_code == 0
+    settings = FakeOpenAIModel.instances[0].settings
+    assert settings.provider == "codex-cli"
+    assert settings.codex_model == "gpt-test"
+    assert settings.selected_model == "gpt-test"
+
+
 def test_cli_selects_openrouter_provider_with_arbitrary_model(monkeypatch, tmp_path: Path) -> None:
     reset_fakes()
     monkeypatch.setattr(api, "create_model", FakeOpenAIModel)

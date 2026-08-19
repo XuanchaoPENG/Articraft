@@ -5,6 +5,10 @@ from articraft.agent.provider.anthropic import AnthropicModel
 from articraft.agent.provider.anthropic import (
     context_window_tokens_for as anthropic_context_window_tokens_for,
 )
+from articraft.agent.provider.codex_cli import CodexCliModel
+from articraft.agent.provider.codex_cli import (
+    context_window_tokens_for as codex_context_window_tokens_for,
+)
 from articraft.agent.provider.gemini import GeminiModel
 from articraft.agent.provider.gemini import (
     context_window_tokens_for as gemini_context_window_tokens_for,
@@ -18,6 +22,8 @@ from articraft.settings import Settings
 
 
 def create_model(settings: Settings) -> Model:
+    if settings.provider == "codex-cli":
+        return CodexCliModel(settings)
     if settings.provider == "openrouter":
         return OpenRouterModel(settings)
     if settings.provider == "anthropic":
@@ -32,11 +38,13 @@ def context_window_tokens_for(model: str) -> int | None:
         openai_context_window_tokens_for(model)
         or gemini_context_window_tokens_for(model)
         or anthropic_context_window_tokens_for(model)
+        or codex_context_window_tokens_for(model)
     )
 
 
 __all__ = [
     "AnthropicModel",
+    "CodexCliModel",
     "GeminiModel",
     "OpenAIModel",
     "OpenRouterModel",

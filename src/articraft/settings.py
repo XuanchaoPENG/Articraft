@@ -23,6 +23,8 @@ DEFAULT_GEMINI_REQUEST_TIMEOUT_SECONDS = 900.0
 DEFAULT_OPENROUTER_MODEL = "nvidia/nemotron-3-ultra-550b-a55b:free"
 DEFAULT_OPENROUTER_MAX_ATTEMPTS = 4
 DEFAULT_OPENROUTER_REQUEST_TIMEOUT_SECONDS = 900.0
+DEFAULT_CODEX_MODEL = "codex-cli-default"
+DEFAULT_CODEX_CLI_TIMEOUT_SECONDS = 900.0
 
 
 class Settings(BaseSettings):
@@ -37,7 +39,7 @@ class Settings(BaseSettings):
         default=DEFAULT_OUTPUT_DIR,
         validation_alias="ARTICRAFT_OUTPUT_DIR",
     )
-    provider: Literal["openai", "gemini", "anthropic", "openrouter"] = Field(
+    provider: Literal["openai", "gemini", "anthropic", "openrouter", "codex-cli"] = Field(
         default=DEFAULT_PROVIDER,
         validation_alias="ARTICRAFT_PROVIDER",
     )
@@ -122,6 +124,19 @@ class Settings(BaseSettings):
         default=None,
         validation_alias="OPENROUTER_APP_TITLE",
     )
+    codex_model: str = Field(
+        default=DEFAULT_CODEX_MODEL,
+        validation_alias="ARTICRAFT_CODEX_MODEL",
+    )
+    codex_cli_bin: str = Field(
+        default="codex",
+        validation_alias="ARTICRAFT_CODEX_CLI_BIN",
+    )
+    codex_cli_timeout_seconds: float = Field(
+        default=DEFAULT_CODEX_CLI_TIMEOUT_SECONDS,
+        gt=0.0,
+        validation_alias="ARTICRAFT_CODEX_CLI_TIMEOUT_SECONDS",
+    )
     max_turns: int = Field(default=DEFAULT_MAX_TURNS, validation_alias="ARTICRAFT_MAX_TURNS")
     physics_enabled: bool = Field(
         default=False,
@@ -135,6 +150,8 @@ class Settings(BaseSettings):
 
     @property
     def selected_model(self) -> str:
+        if self.provider == "codex-cli":
+            return self.codex_model
         if self.provider == "openrouter":
             return self.openrouter_model
         if self.provider == "anthropic":
@@ -145,7 +162,7 @@ class Settings(BaseSettings):
 
     @property
     def selected_reasoning_effort(self) -> str:
-        if self.provider == "openai":
+        if self.provider in {"openai", "codex-cli"}:
             return self.openai_reasoning_effort
         return ""
 

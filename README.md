@@ -12,6 +12,7 @@ Generate articulated 3D objects from a text prompt or a reference image. Articra
 ## Quickstart
 
 You need Python 3.11 or later, [uv](https://docs.astral.sh/uv/), and an OpenAI API key.
+Alternatively, install and log in to Codex CLI to generate without a provider API key.
 
 1. Install Articraft and its development tools:
 
@@ -85,7 +86,12 @@ The simulator can also test sliding friction and released joints. Read the
 
 ## Select a model provider
 
-OpenAI is the default provider. You can also use Anthropic, Gemini, or OpenRouter.
+OpenAI is the default provider. You can also use Anthropic, Gemini, OpenRouter, or the
+locally authenticated Codex CLI:
+
+```shell
+uv run articraft generate --provider codex-cli "a folding chair"
+```
 
 Read the [provider guide](docs/providers.md) for API keys, models, and provider limits.
 

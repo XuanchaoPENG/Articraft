@@ -33,18 +33,19 @@ def generate(
         resolve_path=True,
         help="Local reference image for reconstruction.",
     ),
-    provider: Literal["openai", "gemini", "anthropic", "openrouter"] | None = typer.Option(
+    provider: Literal["openai", "gemini", "anthropic", "openrouter", "codex-cli"]
+    | None = typer.Option(
         None,
         "--provider",
         case_sensitive=False,
-        help="Model provider to use: openai, gemini, anthropic, or openrouter.",
+        help="Model provider: openai, gemini, anthropic, openrouter, or codex-cli.",
     ),
     model: str | None = typer.Option(None, "-m", "--model", help="Model to use."),
     output_dir: Path | None = typer.Option(None, "--output-dir", help="Run output directory."),
     effort: str | None = typer.Option(
         None,
         "--effort",
-        help="OpenAI reasoning effort.",
+        help="OpenAI or Codex reasoning effort.",
     ),
     compile_timeout: float | None = typer.Option(
         None,
@@ -304,7 +305,7 @@ def _default_output_dir() -> Path:
 
 
 def _settings(
-    provider: Literal["openai", "gemini", "anthropic", "openrouter"] | None,
+    provider: Literal["openai", "gemini", "anthropic", "openrouter", "codex-cli"] | None,
     model: str | None,
     output_dir: Path | None,
     effort: str | None,
