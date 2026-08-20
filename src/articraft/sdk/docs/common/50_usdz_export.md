@@ -14,10 +14,11 @@ file under `output/usdz/`.
 The function also replaces `output/model.json` with one atomic file operation. It returns an
 `AssemblyExportResult` with paths, texture results, and an `AssemblyExportAudit`.
 
-An assembly with exactly one articulation also writes an EmbodiChain-compatible
-`output/usdc/<version>/model.usdc`. This compatibility layer makes the assembly the stage
-default prim and moves `ArticulationRootAPI` to that assembly so DexSim discovers every sibling
-rigid body and joint. The native USDZ remains unchanged for Articraft's viewer.
+Compile attempts write only numbered USDZ files. After a generation succeeds, articraft creates
+one EmbodiChain-compatible `output/usdc/<final-version>/model.usdc` from the USDZ selected by
+`record.result`. This compatibility layer makes the assembly the stage default prim and moves
+`ArticulationRootAPI` to that assembly so DexSim discovers every sibling rigid body and joint.
+The native USDZ attempts remain unchanged for QA and historical preview.
 
 ## Stage layout
 

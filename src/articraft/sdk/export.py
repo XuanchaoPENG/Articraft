@@ -38,7 +38,6 @@ from articraft.sdk.assembly import (
     RigidBodyAssembly,
 )
 from articraft.sdk.bodies import Geometry, RigidBody
-from articraft.sdk.embodichain import export_embodichain_usdc
 from articraft.sdk.mass import ResolvedMass, resolve_mass
 from articraft.sdk.materials import Material, is_library_material
 from articraft.sdk.physics import BodyState, PhysicsScene
@@ -78,7 +77,6 @@ class AssemblyExportResult:
     usdz: Path
     textures: TextureExportReport
     audit: AssemblyExportAudit
-    embodichain_usdc: Path | None = None
 
 
 @dataclass
@@ -113,9 +111,6 @@ def export_assembly(
     root = Path(output_dir)
     root.mkdir(parents=True, exist_ok=True)
     usdz = _next_usdz_path(root / "usdz")
-    embodichain_usdc = (
-        root / "usdc" / usdz.stem / "model.usdc" if len(resolved.articulations) == 1 else None
-    )
     manifest = root / "model.json"
     manifest_temp = manifest.with_name(f".{manifest.name}.tmp")
     try:
@@ -124,19 +119,15 @@ def export_assembly(
             usdz,
             mesh_tolerance,
             textured=textured,
-            embodichain_usdc=embodichain_usdc,
         )
         audit = _audit_assembly_usdz(resolved, usdz, mesh_tolerance)
-        files = {"usdz": usdz.relative_to(root).as_posix()}
-        if embodichain_usdc is not None:
-            files["embodichain_usdc"] = embodichain_usdc.relative_to(root).as_posix()
-        payload = _assembly_to_payload(resolved, masses) | {"files": files}
+        payload = _assembly_to_payload(resolved, masses) | {
+            "files": {"usdz": usdz.relative_to(root).as_posix()}
+        }
         manifest_temp.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
         manifest_temp.replace(manifest)
     except BaseException:
         usdz.unlink(missing_ok=True)
-        if embodichain_usdc is not None:
-            shutil.rmtree(embodichain_usdc.parent, ignore_errors=True)
         raise
     finally:
         manifest_temp.unlink(missing_ok=True)
@@ -146,7 +137,6 @@ def export_assembly(
         usdz=usdz,
         textures=texture_report,
         audit=audit,
-        embodichain_usdc=embodichain_usdc,
     )
 
 
@@ -189,7 +179,6 @@ def _write_assembly_usdz(
     mesh_tolerance: float,
     *,
     textured: bool = False,
-    embodichain_usdc: Path | None = None,
 ) -> tuple[TextureExportReport, dict[str, dict[str, object]]]:
     if mesh_tolerance <= 0.0 or not math.isfinite(mesh_tolerance):
         raise ValueError("mesh_tolerance must be a positive finite number")
@@ -237,8 +226,6 @@ def _write_assembly_usdz(
         path.parent.mkdir(parents=True, exist_ok=True)
         stage.GetRootLayer().Save()
         _validate_stage(stage)
-        if embodichain_usdc is not None:
-            export_embodichain_usdc(stage_path, embodichain_usdc, copy_assets=True)
         temp_path = path.with_name(f".{path.stem}.tmp.usdz")
         temp_path.unlink(missing_ok=True)
         try:

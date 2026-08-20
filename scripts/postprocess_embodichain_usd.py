@@ -11,7 +11,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
         description="Create an EmbodiChain-compatible USDC from an Articraft USD stage."
     )
-    parser.add_argument("source", type=Path, help="Source USD, USDA, or USDC file.")
+    parser.add_argument("source", type=Path, help="Source USD, USDA, USDC, or USDZ file.")
     parser.add_argument("destination", type=Path, help="Destination .usdc file.")
     parser.add_argument(
         "--copy-assets",

@@ -87,6 +87,7 @@ def generate(
         )
         if textures:
             _apply_textures(result)
+        api._finalize_generation_artifacts(result)
         if not use_tui:
             _print_result(result)
     except (OSError, ValueError) as exc:
@@ -200,6 +201,13 @@ def texture(
     if outcome.applied:
         if outcome.usdz is not None:
             _point_record_at(run_dir, outcome.usdz)
+            record = Record.load(run_dir / "record.json")
+            api._finalize_generation_artifacts(
+                {
+                    "status": record.status,
+                    "run": str(run_dir),
+                }
+            )
         typer.echo(
             f"applied texture maps to {outcome.textured_shapes}/"
             f"{outcome.requested_shapes} surfaces in {run_dir}"

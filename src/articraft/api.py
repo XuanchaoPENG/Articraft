@@ -21,7 +21,9 @@ from typing import Any, Literal, cast, get_args
 from articraft.agent import Agent, events
 from articraft.agent.provider import create_model
 from articraft.agent.provider.anthropic import anthropic_api_key_value
+from articraft.agent.record import Record
 from articraft.agent.workspace import LocalWorkspace
+from articraft.sdk.embodichain import export_embodichain_result
 from articraft.settings import Settings, get_settings
 
 Provider = Literal["openai", "gemini", "anthropic", "openrouter", "codex-cli"]
@@ -124,7 +126,23 @@ async def generate_async(
         image_path=image_path,
         on_event=on_event,
     )
+    _finalize_generation_artifacts(payload)
     return _result_from_payload(payload)
+
+
+def _finalize_generation_artifacts(payload: dict[str, Any]) -> Path | None:
+    """Publish compatibility artifacts for the successful recorded result."""
+
+    if str(payload.get("status") or "") != "success":
+        return None
+    raw_run_dir = str(payload.get("run") or "")
+    if not raw_run_dir:
+        return None
+    run_dir = Path(raw_run_dir).resolve()
+    record = Record.load(run_dir / "record.json")
+    if record.status != "success" or not record.result:
+        return None
+    return export_embodichain_result(run_dir, record.result)
 
 
 def _resolve_request(

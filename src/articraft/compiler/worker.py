@@ -5,7 +5,6 @@ import io
 import json
 import os
 import runpy
-import shutil
 import sys
 import time
 import traceback
@@ -152,18 +151,10 @@ def texture_run(run_dir: Path) -> TextureRunResult:
                     manifest_temp.write_bytes(previous_manifest)
                     manifest_temp.replace(manifest)
                 export_result.usdz.unlink(missing_ok=True)
-                compatible_usdc = getattr(export_result, "embodichain_usdc", None)
-                if compatible_usdc is not None:
-                    shutil.rmtree(compatible_usdc.parent, ignore_errors=True)
             else:
                 for stale in (result_dir / "usdz").glob("*.usdz"):
                     if stale != export_result.usdz:
                         stale.unlink()
-                compatible_usdc = getattr(export_result, "embodichain_usdc", None)
-                if compatible_usdc is not None:
-                    for stale in (result_dir / "usdc").iterdir():
-                        if stale != compatible_usdc.parent:
-                            shutil.rmtree(stale)
         return TextureRunResult(
             succeeded=True,
             requested_shapes=report.requested_shapes,
