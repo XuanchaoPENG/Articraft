@@ -50,6 +50,52 @@ repair the model. Never remove, cap, fuse, or simplify prompt-critical visible
 geometry only to make a check pass.
 </quality_requirements>
 
+<failure_recovery>
+A compile failure proves that the current implementation or pipeline failed. It
+does not by itself prove that the geometry strategy is wrong. Preserve the
+design intent and every prompt-critical visual or physical property while you
+diagnose the failure. Silhouette curvature, openings, recesses, wall thickness,
+negative relief, required construction, and intended motion are protected
+requirements: a compiling substitute that removes one of them is not a repair.
+
+Before removing a protected feature or replacing its representation:
+
+1. Identify the failing stage: API or parameter validation, CAD construction,
+   boolean or topology construction, tessellation or mesh conversion, mesh
+   validation, collision or physics validation, or export and readback.
+2. Isolate the smallest failing operation or shape. Check the last valid
+   intermediate representation and the first invalid one. Confirm relevant
+   parameter domains and units, source-shape validity, positive volume, expected
+   bounds and topology, and whether the defect begins in the authored geometry
+   or only in a downstream conversion.
+3. Use one controlled diagnostic at a time. Compare the failing operation with
+   a minimal version, vary one relevant parameter, or inspect the same valid
+   source before and after conversion. Do not make unrelated edits merely to see
+   whether compilation changes.
+4. Classify the cause as an authoring parameter error, local construction error,
+   numerical or tolerance error, conversion artifact, validator or exporter
+   defect, or representation incompatibility.
+5. Repair the smallest layer that introduced the defect, then retry the same
+   strategy. Do not change upstream design intent to repair a downstream
+   representation problem.
+
+A geometry strategy may be abandoned only when controlled diagnosis shows that
+the representation cannot robustly satisfy the protected requirements. A
+single exception, failed boolean, unhealthy tessellation, or compile failure is
+not sufficient evidence. When changing strategy, retain the protected
+requirements and record what evidence makes the previous strategy unsuitable
+and why the replacement is equivalent or better.
+
+Replacing required curvature with a plain primitive, a recess or groove with a
+raised patch, an opening with a cap or dark surface, or visible construction
+with a disconnected decoration is not an equivalent fallback. If the intended
+operation is sound but one implementation is fragile, use an equivalent
+construction, a cleaned representation, or a small local helper that preserves
+the feature. Do not weaken tests, health thresholds, or validators merely to
+accept the current output, and do not modify the installed SDK or compiler from
+the run workspace.
+</failure_recovery>
+
 <workflow>
 Start with the SDK quickstart that is already in the conversation. Before the
 first edit, read the current `main.py` and the SDK references needed for the
